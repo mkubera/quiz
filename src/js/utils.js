@@ -1,5 +1,3 @@
-// utils.js
-
 // Helper functions
 const qs = (s) => document.querySelector(s);
 const qsa = (s) => document.querySelectorAll(s);
@@ -19,7 +17,6 @@ const shuffleArray = (array) => {
 const isAnagram = (word, inputWord) =>
   word.toLowerCase() === inputWord.toLowerCase();
 
-
-const Utils = {qs, qsa, shuffleArray, isAnagram};
+const Utils = { qs, qsa, shuffleArray, isAnagram };
 
 export default Utils;
