@@ -14,24 +14,68 @@ const btnNextDOM = Utils.qs(".btn-next");
 const resultDOM = Utils.qs(".result");
 const inputWordDOM = Utils.qs(".input-word");
 
+// HELPER FN
+const getHasCorrectAnswerByWordIndex = () => {
+  const { words, index } = Store.getState();
+  const { hasCorrectAnswer } = words[index];
+  return hasCorrectAnswer;
+};
+const getNoOfCorrectAnswers = () => {
+  const { words } = Store.getState();
+  const noOfCorrectAnswers = words.filter(
+    (word) => word.hasCorrectAnswer
+  ).length;
+  return noOfCorrectAnswers;
+};
+
 // Start App (main/initApp)
 const initApp = () => {
   btnTryDOM.addEventListener("click", () => {
-    const { words, index, scoreIndex } = Store.getState();
-    const word = words[index];
+    const { words, index } = Store.getState();
+    // const { words, index, scoreIndex } = Store.getState();
+    const { id, word } = words[index];
     const inputWord = inputWordDOM.value;
+
+    console.log(word, inputWord);
+
+    // TODO: add +1 to the word's (by id) noOfAttempts
+    // user .map on words
 
     if (Utils.isAnagram(word, inputWord)) {
       Store.setState(
-        (state) => ({ ...state, scoreIndex: state.scoreIndex + 1 }),
+        (state) => ({
+          ...state,
+          // scoreIndex: state.scoreIndex + 1,
+          words: state.words.map((word) =>
+            word.id === id ? { ...word, hasCorrectAnswer: true } : word
+          ),
+        }),
         true
       ); // <= you need to update store this way (and `true` has to be the 2nd arg. It stands for "replace" the store)
 
-      resultDOM.textContent = "Correct 👏";
-      scoresDOM.textContent = `${scoreIndex + 1} / ${words.length}`;
+      const hasCorrectAnswer = getHasCorrectAnswerByWordIndex();
+      const noOfCorrectAnswers = getNoOfCorrectAnswers();
+
+      resultDOM.textContent = `Correct 👏 (${hasCorrectAnswer})`;
+      scoresDOM.textContent = `${noOfCorrectAnswers} / ${words.length}`;
+      // scoresDOM.textContent = `${scoreIndex + 1} / ${words.length}`;
     } else {
-      resultDOM.textContent = "🫤 Incorrect, 🔄 please   try again";
-      scoresDOM.textContent = `${scoreIndex} / ${words.length}`;
+      Store.setState(
+        (state) => ({
+          ...state,
+          words: state.words.map((word) =>
+            word.id === id ? { ...word, hasCorrectAnswer: false } : word
+          ),
+        }),
+        true
+      );
+
+      const hasCorrectAnswer = getHasCorrectAnswerByWordIndex();
+      const noOfCorrectAnswers = getNoOfCorrectAnswers();
+
+      resultDOM.textContent = `🫤 Incorrect, 🔄 please   try again (${hasCorrectAnswer})`;
+      scoresDOM.textContent = `${noOfCorrectAnswers} / ${words.length}`;
+      // scoresDOM.textContent = `${scoreIndex} / ${words.length}`;
     }
   });
 
